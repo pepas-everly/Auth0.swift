@@ -40,8 +40,8 @@ public let defaultScope = "openid profile email"
    - session:  `URLSession` instance used for networking. Defaults to `URLSession.shared`.
  - Returns: Auth0 Authentication API client.
  */
-public func authentication(clientId: String, domain: String, session: URLSession = .shared) -> Authentication {
-    return Auth0Authentication(clientId: clientId, url: .httpsURL(from: domain), session: session)
+public func authentication(clientId: String, domain: String, path: String = "", session: URLSession = .shared) -> Authentication {
+    return Auth0Authentication(clientId: clientId, url: .httpsURL(from: domain, path: path), session: session)
 }
 
 /**
@@ -74,7 +74,7 @@ public func authentication(clientId: String, domain: String, session: URLSession
  */
 public func authentication(session: URLSession = .shared, bundle: Bundle = .main) -> Authentication {
     let values = plistValues(bundle: bundle)!
-    return authentication(clientId: values.clientId, domain: values.domain, session: session)
+    return authentication(clientId: values.clientId, domain: values.domain, path: values.path, session: session)
 }
 
 /**
@@ -116,7 +116,7 @@ public func authentication(session: URLSession = .shared, bundle: Bundle = .main
  */
 public func users(token: String, session: URLSession = .shared, bundle: Bundle = .main) -> Users {
     let values = plistValues(bundle: bundle)!
-    return users(token: token, domain: values.domain, session: session)
+    return users(token: token, domain: values.domain, path: values.path, session: session)
 }
 
 /**
@@ -140,8 +140,8 @@ public func users(token: String, session: URLSession = .shared, bundle: Bundle =
    - session: `URLSession` instance used for networking. Defaults to `URLSession.shared`.
  - Returns: Auth0 Management API v2 client.
  */
-public func users(token: String, domain: String, session: URLSession = .shared) -> Users {
-    return Management(token: token, url: .httpsURL(from: domain), session: session)
+public func users(token: String, domain: String, path: String = "", session: URLSession = .shared) -> Users {
+    return Management(token: token, url: .httpsURL(from: domain, path: path), session: session)
 }
 
 #if WEB_AUTH_PLATFORM
@@ -175,7 +175,7 @@ public func users(token: String, domain: String, session: URLSession = .shared) 
  */
 public func webAuth(session: URLSession = .shared, bundle: Bundle = Bundle.main) -> WebAuth {
     let values = plistValues(bundle: bundle)!
-    return webAuth(clientId: values.clientId, domain: values.domain, session: session)
+    return webAuth(clientId: values.clientId, domain: values.domain, path: values.path, session: session)
 }
 
 /**
@@ -191,12 +191,12 @@ public func webAuth(session: URLSession = .shared, bundle: Bundle = Bundle.main)
    - session:  `URLSession` instance used for networking. Defaults to `URLSession.shared`.
  - Returns: Auth0 Web Auth client.
  */
-public func webAuth(clientId: String, domain: String, session: URLSession = .shared) -> WebAuth {
-    return Auth0WebAuth(clientId: clientId, url: .httpsURL(from: domain), session: session)
+public func webAuth(clientId: String, domain: String, path: String = "", session: URLSession = .shared) -> WebAuth {
+    return Auth0WebAuth(clientId: clientId, url: .httpsURL(from: domain, path: path), session: session)
 }
 #endif
 
-func plistValues(bundle: Bundle) -> (clientId: String, domain: String)? {
+func plistValues(bundle: Bundle) -> (clientId: String, domain: String, path: String)? {
     guard
         let path = bundle.path(forResource: "Auth0", ofType: "plist"),
         let values = NSDictionary(contentsOfFile: path) as? [String: Any]
@@ -213,5 +213,5 @@ func plistValues(bundle: Bundle) -> (clientId: String, domain: String)? {
             print("File currently has the following entries: \(values)")
             return nil
         }
-    return (clientId: clientId, domain: domain)
+    return (clientId: clientId, domain: domain, path: values["Path"] as? String ?? "")
 }

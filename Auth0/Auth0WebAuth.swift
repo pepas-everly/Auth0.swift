@@ -33,6 +33,7 @@ final class Auth0WebAuth: WebAuth {
     lazy var redirectURL: URL? = {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier else { return nil }
         var components = URLComponents(url: self.url, resolvingAgainstBaseURL: true)
+        components?.path = ""
         components?.scheme = bundleIdentifier
         return components?.url?
             .appendingPathComponent(self.platform)
@@ -183,7 +184,7 @@ final class Auth0WebAuth: WebAuth {
                            state: String?,
                            organization: String?,
                            invitation: String?) -> URL {
-        let authorize = URL(string: "authorize", relativeTo: self.url)!
+        let authorize = URL(string: "\(self.url)/authorize")!
         var components = URLComponents(url: authorize, resolvingAgainstBaseURL: true)!
         var items: [URLQueryItem] = []
         var entries = defaults
